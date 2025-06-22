@@ -44,10 +44,10 @@ const BudgetCard = ({ budget, onEdit, onDelete, onExpenseDeduct }) => {
       <div className="space-y-3">
         <div className="flex justify-between">
           <span className="text-2xl font-bold text-gray-900">
-            ${remaining.toFixed(2)}
+            ₱{remaining.toFixed(2)}
           </span>
           <span className="text-sm text-gray-500">
-            of ${budget.amount.toFixed(2)}
+            of ₱{budget.amount.toFixed(2)}
           </span>
         </div>
 
@@ -66,7 +66,7 @@ const BudgetCard = ({ budget, onEdit, onDelete, onExpenseDeduct }) => {
 
         <div className="flex justify-between text-sm">
           <span className="text-gray-600">
-            Spent: ${budget.spent.toFixed(2)}
+            Spent: ₱{budget.spent.toFixed(2)}
           </span>
           <span
             className={`font-medium ${
