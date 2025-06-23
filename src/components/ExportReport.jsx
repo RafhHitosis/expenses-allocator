@@ -620,31 +620,28 @@ const ExportReport = ({ budgets, expenses, onClose, user }) => {
     Object.values(selectedBudgets).filter(Boolean).length;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black bg-opacity-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black bg-opacity-50 p-2 sm:p-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden">
         {/* Header */}
-        <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white p-6">
+        <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white p-3 sm:p-5">
           <div className="flex justify-between items-center">
             <div>
-              <h2 className="text-2xl font-bold flex items-center">
-                <Download className="w-6 h-6 mr-3" />
+              <h2 className="text-base sm:text-lg font-bold flex items-center">
+                <Download className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3" />
                 Export Report
               </h2>
-              <p className="text-purple-100 mt-1">
-                Generate comprehensive expense reports with custom filters
-              </p>
             </div>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-white hover:bg-opacity-20 rounded-lg transition-colors"
+              className="p-1.5 sm:p-2 hover:bg-white hover:bg-opacity-100 rounded-lg transition-colors group"
             >
-              <X className="w-6 h-6" />
+              <X className="w-5 h-5 sm:w-6 sm:h-6 text-white group-hover:text-pink-600 transition-colors" />
             </button>
           </div>
         </div>
 
-        <div className="p-6 overflow-y-auto max-h-[calc(90vh-280px)]">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="p-3 sm:p-6 overflow-y-auto max-h-[calc(95vh-200px)] sm:max-h-[calc(90vh-280px)]">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
             {/* Left Column - Export Settings */}
             <div className="space-y-6">
               {/* Report Name & Format */}
@@ -663,7 +660,7 @@ const ExportReport = ({ budgets, expenses, onClose, user }) => {
                       type="text"
                       value={reportName}
                       onChange={(e) => setReportName(e.target.value)}
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300"
+                      className="w-full p-2 sm:p-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300"
                       placeholder="expense-report"
                     />
                   </div>
@@ -672,28 +669,32 @@ const ExportReport = ({ budgets, expenses, onClose, user }) => {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Export Format
                     </label>
-                    <div className="flex space-x-4">
+                    <div className="grid grid-cols-2 gap-2 sm:gap-4">
                       <button
                         onClick={() => setExportFormat("pdf")}
-                        className={`flex-1 p-3 rounded-lg border-2 transition-colors ${
+                        className={`p-2 sm:p-3 rounded-lg border-2 transition-colors ${
                           exportFormat === "pdf"
                             ? "border-purple-500 bg-purple-50 text-purple-700"
                             : "border-gray-300 hover:border-gray-400"
                         }`}
                       >
-                        <FileText className="w-5 h-5 mx-auto mb-1" />
-                        <div className="text-sm font-medium">HTML/PDF</div>
+                        <FileText className="w-4 h-4 sm:w-5 sm:h-5 mx-auto mb-1" />
+                        <div className="text-xs sm:text-sm font-medium">
+                          HTML/PDF
+                        </div>
                       </button>
                       <button
                         onClick={() => setExportFormat("csv")}
-                        className={`flex-1 p-3 rounded-lg border-2 transition-colors ${
+                        className={`p-2 sm:p-3 rounded-lg border-2 transition-colors ${
                           exportFormat === "csv"
                             ? "border-purple-500 bg-purple-50 text-purple-700"
                             : "border-gray-300 hover:border-gray-400"
                         }`}
                       >
-                        <FileSpreadsheet className="w-5 h-5 mx-auto mb-1" />
-                        <div className="text-sm font-medium">CSV</div>
+                        <FileSpreadsheet className="w-4 h-4 sm:w-5 sm:h-5 mx-auto mb-1" />
+                        <div className="text-xs sm:text-sm font-medium">
+                          CSV
+                        </div>
                       </button>
                     </div>
                   </div>
@@ -721,7 +722,7 @@ const ExportReport = ({ budgets, expenses, onClose, user }) => {
                           startDate: e.target.value,
                         }))
                       }
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300"
+                      className="w-full p-2 sm:p-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300"
                     />
                   </div>
                   <div>
@@ -737,7 +738,7 @@ const ExportReport = ({ budgets, expenses, onClose, user }) => {
                           endDate: e.target.value,
                         }))
                       }
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300"
+                      className="w-full p-2 sm:p-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300"
                     />
                   </div>
                 </div>
@@ -754,17 +755,17 @@ const ExportReport = ({ budgets, expenses, onClose, user }) => {
 
               {/* Budget Selection */}
               <div className="bg-gray-50 p-4 rounded-xl">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="font-semibold text-gray-900 flex items-center">
-                    <Filter className="w-5 h-5 mr-2 text-green-600" />
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-2">
+                  <h3 className="font-semibold text-gray-900 flex items-center text-sm sm:text-base">
+                    <Filter className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-green-600" />
                     Budget Selection ({selectedBudgetCount}/
                     {Object.keys(budgets).length})
                   </h3>
                   <button
                     onClick={handleSelectAllBudgets}
-                    className="text-sm text-green-600 hover:text-green-800 underline flex items-center"
+                    className="text-xs sm:text-sm text-green-600 hover:text-green-800 underline flex items-center self-start sm:self-auto"
                   >
-                    <Users className="w-4 h-4 mr-1" />
+                    <Users className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                     {Object.keys(budgets).every((id) => selectedBudgets[id])
                       ? "Deselect All"
                       : "Select All"}
@@ -775,24 +776,22 @@ const ExportReport = ({ budgets, expenses, onClose, user }) => {
                   {Object.entries(budgets).map(([id, budget]) => (
                     <div
                       key={id}
-                      className="flex items-center justify-between p-2 hover:bg-white rounded-lg transition-colors"
+                      onClick={() => handleBudgetToggle(id)}
+                      className="flex items-center justify-between p-2 hover:bg-white rounded-lg transition-colors cursor-pointer"
                     >
-                      <div className="flex items-center">
-                        <button
-                          onClick={() => handleBudgetToggle(id)}
-                          className="mr-3 text-green-600 hover:text-green-800"
-                        >
+                      <div className="flex items-center min-w-0 flex-1">
+                        <div className="mr-2 sm:mr-3 text-green-600 flex-shrink-0">
                           {selectedBudgets[id] ? (
-                            <CheckSquare className="w-5 h-5" />
+                            <CheckSquare className="w-4 h-4 sm:w-5 sm:h-5" />
                           ) : (
-                            <Square className="w-5 h-5" />
+                            <Square className="w-4 h-4 sm:w-5 sm:h-5" />
                           )}
-                        </button>
-                        <div>
-                          <div className="font-medium text-gray-900">
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="font-medium text-gray-900 text-sm sm:text-base truncate">
                             {budget.name}
                           </div>
-                          <div className="text-sm text-gray-500">
+                          <div className="text-xs sm:text-sm text-gray-500 truncate">
                             ₱{budget.amount.toFixed(2)} • Spent: ₱
                             {budget.spent.toFixed(2)}
                           </div>
@@ -809,7 +808,7 @@ const ExportReport = ({ budgets, expenses, onClose, user }) => {
               {/* Include Options */}
               <div className="bg-gray-50 p-4 rounded-xl">
                 <h3 className="font-semibold text-gray-900 mb-4 flex items-center">
-                  <CheckSquare className="w-5 h-5 mr-2 text-pink-600" />
+                  <FileText className="w-5 h-5 mr-2 text-pink-600" />
                   Include in Report
                 </h3>
 
@@ -843,27 +842,25 @@ const ExportReport = ({ budgets, expenses, onClose, user }) => {
                   ].map(({ key, label, icon: Icon, desc }) => (
                     <div
                       key={key}
-                      className="flex items-start justify-between p-3 hover:bg-white rounded-lg transition-colors"
+                      onClick={() => handleIncludeToggle(key)}
+                      className="flex items-start justify-between p-2 sm:p-3 hover:bg-white rounded-lg transition-colors cursor-pointer"
                     >
-                      <div className="flex items-start">
-                        <button
-                          onClick={() => handleIncludeToggle(key)}
-                          className="mr-3 text-pink-600 hover:text-pink-800"
-                        >
+                      <div className="flex items-start min-w-0 flex-1">
+                        <div className="mr-2 sm:mr-3 text-pink-600 flex-shrink-0">
                           {includeOptions[key] ? (
-                            <CheckSquare className="w-5 h-5" />
+                            <CheckSquare className="w-4 h-4 sm:w-5 sm:h-5" />
                           ) : (
-                            <Square className="w-5 h-5" />
+                            <Square className="w-4 h-4 sm:w-5 sm:h-5" />
                           )}
-                        </button>
-                        <div>
+                        </div>
+                        <div className="min-w-0 flex-1">
                           <div className="flex items-center">
-                            <Icon className="w-4 h-4 mr-2 text-gray-600" />
-                            <span className="font-medium text-gray-900">
+                            <Icon className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 text-gray-600 flex-shrink-0" />
+                            <span className="font-medium text-gray-900 text-sm sm:text-base truncate">
                               {label}
                             </span>
                           </div>
-                          <div className="text-sm text-gray-500 mt-1">
+                          <div className="text-xs sm:text-sm text-gray-500 mt-1 line-clamp-2">
                             {desc}
                           </div>
                         </div>
@@ -880,32 +877,38 @@ const ExportReport = ({ budgets, expenses, onClose, user }) => {
                   Report Preview
                 </h3>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-blue-600">
+                <div className="grid grid-cols-2 gap-2 sm:gap-4">
+                  <div className="text-center p-2">
+                    <div className="text-lg sm:text-2xl font-bold text-blue-600">
                       {selectedBudgetCount}
                     </div>
-                    <div className="text-sm text-gray-600">
+                    <div className="text-xs sm:text-sm text-gray-600">
                       Budgets Selected
                     </div>
                   </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-green-600">
+                  <div className="text-center p-2">
+                    <div className="text-lg sm:text-2xl font-bold text-green-600">
                       {stats.expenseCount}
                     </div>
-                    <div className="text-sm text-gray-600">Expenses Found</div>
+                    <div className="text-xs sm:text-sm text-gray-600">
+                      Expenses Found
+                    </div>
                   </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-purple-600">
+                  <div className="text-center p-2">
+                    <div className="text-lg sm:text-2xl font-bold text-purple-600">
                       ₱{stats.totalBudget.toFixed(0)}
                     </div>
-                    <div className="text-sm text-gray-600">Total Budget</div>
+                    <div className="text-xs sm:text-sm text-gray-600">
+                      Total Budget
+                    </div>
                   </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-red-600">
+                  <div className="text-center p-2">
+                    <div className="text-lg sm:text-2xl font-bold text-red-600">
                       ₱{stats.totalSpent.toFixed(0)}
                     </div>
-                    <div className="text-sm text-gray-600">Total Spent</div>
+                    <div className="text-xs sm:text-sm text-gray-600">
+                      Total Spent
+                    </div>
                   </div>
                 </div>
 
@@ -965,7 +968,7 @@ const ExportReport = ({ budgets, expenses, onClose, user }) => {
                         endDate: today.toISOString().split("T")[0],
                       });
                     }}
-                    className="p-2 text-sm bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                    className="p-2 text-xs sm:text-sm bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
                   >
                     This Month
                   </button>
@@ -987,7 +990,7 @@ const ExportReport = ({ budgets, expenses, onClose, user }) => {
                         endDate: lastMonthEnd.toISOString().split("T")[0],
                       });
                     }}
-                    className="p-2 text-sm bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                    className="p-2 text-xs sm:text-sm bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
                   >
                     Last Month
                   </button>
@@ -1002,7 +1005,7 @@ const ExportReport = ({ budgets, expenses, onClose, user }) => {
                         endDate: today.toISOString().split("T")[0],
                       });
                     }}
-                    className="p-2 text-sm bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                    className="p-2 text-xs sm:text-sm bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
                   >
                     Last 7 Days
                   </button>
@@ -1015,7 +1018,7 @@ const ExportReport = ({ budgets, expenses, onClose, user }) => {
                       });
                       setSelectedBudgets(allSelected);
                     }}
-                    className="p-2 text-sm bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                    className="p-2 text-xs sm:text-sm bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
                   >
                     Reset All
                   </button>
@@ -1026,32 +1029,32 @@ const ExportReport = ({ budgets, expenses, onClose, user }) => {
         </div>
 
         {/* Footer with Export Button */}
-        <div className="bg-gray-50 p-6 border-t border-gray-200">
-          <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-            <div className="text-sm text-gray-600">
+        <div className="bg-gray-50 p-3 sm:p-6 border-t border-gray-200">
+          <div className="flex flex-col gap-3 sm:gap-4">
+            <div className="text-xs sm:text-sm text-gray-600 text-center sm:text-left">
               Ready to export {stats.expenseCount} expenses from{" "}
               {selectedBudgetCount} budget{selectedBudgetCount !== 1 ? "s" : ""}
             </div>
-            <div className="flex space-x-3">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
               <button
                 onClick={onClose}
-                className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                className="flex-1 sm:flex-none px-4 sm:px-6 py-2 sm:py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm sm:text-base"
               >
                 Cancel
               </button>
               <button
                 onClick={handleExport}
                 disabled={selectedBudgetCount === 0 || isExporting}
-                className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                className="flex-1 sm:flex-none px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center text-sm sm:text-base"
               >
                 {isExporting ? (
                   <>
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                    <div className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
                     Exporting...
                   </>
                 ) : (
                   <>
-                    <Download className="w-4 h-4 mr-2" />
+                    <Download className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
                     Export Report
                   </>
                 )}
