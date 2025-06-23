@@ -708,49 +708,149 @@ const ExportReport = ({ budgets, expenses, onClose, user }) => {
                   Date Range Filter
                 </h3>
 
-                <div className="grid grid-cols-2 gap-4">
+                {/* Stack vertically on mobile, side by side on larger screens */}
+                <div className="space-y-4 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Start Date
                     </label>
-                    <input
-                      type="date"
-                      value={dateRange.startDate}
-                      onChange={(e) =>
-                        setDateRange((prev) => ({
-                          ...prev,
-                          startDate: e.target.value,
-                        }))
-                      }
-                      className="w-full p-2 sm:p-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300"
-                    />
+                    <div className="relative">
+                      <input
+                        type="date"
+                        value={dateRange.startDate}
+                        onChange={(e) =>
+                          setDateRange((prev) => ({
+                            ...prev,
+                            startDate: e.target.value,
+                          }))
+                        }
+                        className="w-full p-3 text-base border border-gray-300 rounded-lg 
+                     focus:outline-none focus:ring-2 focus:ring-blue-300 
+                     focus:border-blue-300 transition-colors
+                     sm:text-sm sm:p-2"
+                        // Better mobile styling
+                        style={{
+                          minHeight: "44px", // iOS minimum touch target
+                          fontSize: "16px", // Prevents zoom on iOS
+                        }}
+                      />
+                      {/* Optional: Add a clear button */}
+                      {dateRange.startDate && (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setDateRange((prev) => ({ ...prev, startDate: "" }))
+                          }
+                          className="absolute right-2 top-1/2 transform -translate-y-1/2 
+                       text-gray-400 hover:text-gray-600 transition-colors
+                       w-6 h-6 flex items-center justify-center"
+                        >
+                          ×
+                        </button>
+                      )}
+                    </div>
+                    {/* Show formatted date below input on mobile for clarity */}
+                    {dateRange.startDate && (
+                      <div className="mt-1 text-xs text-gray-500 sm:hidden">
+                        From:{" "}
+                        {new Date(dateRange.startDate).toLocaleDateString(
+                          "en-US",
+                          {
+                            weekday: "short",
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                          }
+                        )}
+                      </div>
+                    )}
                   </div>
+
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       End Date
                     </label>
-                    <input
-                      type="date"
-                      value={dateRange.endDate}
-                      onChange={(e) =>
-                        setDateRange((prev) => ({
-                          ...prev,
-                          endDate: e.target.value,
-                        }))
-                      }
-                      className="w-full p-2 sm:p-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300"
-                    />
+                    <div className="relative">
+                      <input
+                        type="date"
+                        value={dateRange.endDate}
+                        onChange={(e) =>
+                          setDateRange((prev) => ({
+                            ...prev,
+                            endDate: e.target.value,
+                          }))
+                        }
+                        className="w-full p-3 text-base border border-gray-300 rounded-lg 
+                     focus:outline-none focus:ring-2 focus:ring-blue-300 
+                     focus:border-blue-300 transition-colors
+                     sm:text-sm sm:p-2"
+                        style={{
+                          minHeight: "44px",
+                          fontSize: "16px",
+                        }}
+                      />
+                      {dateRange.endDate && (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setDateRange((prev) => ({ ...prev, endDate: "" }))
+                          }
+                          className="absolute right-2 top-1/2 transform -translate-y-1/2 
+                       text-gray-400 hover:text-gray-600 transition-colors
+                       w-6 h-6 flex items-center justify-center"
+                        >
+                          ×
+                        </button>
+                      )}
+                    </div>
+                    {dateRange.endDate && (
+                      <div className="mt-1 text-xs text-gray-500 sm:hidden">
+                        To:{" "}
+                        {new Date(dateRange.endDate).toLocaleDateString(
+                          "en-US",
+                          {
+                            weekday: "short",
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                          }
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
 
-                {(dateRange.startDate || dateRange.endDate) && (
-                  <button
-                    onClick={() => setDateRange({ startDate: "", endDate: "" })}
-                    className="mt-3 text-sm text-blue-600 hover:text-blue-800 underline"
-                  >
-                    Clear date filter
-                  </button>
-                )}
+                {/* Enhanced clear and status section */}
+                <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                  {(dateRange.startDate || dateRange.endDate) && (
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() =>
+                          setDateRange({ startDate: "", endDate: "" })
+                        }
+                        className="text-sm text-blue-600 hover:text-blue-800 underline"
+                      >
+                        Clear date filter
+                      </button>
+                      {/* Show date range summary */}
+                      <span className="text-xs text-gray-500 hidden sm:inline">
+                        {dateRange.startDate && dateRange.endDate
+                          ? `${new Date(
+                              dateRange.startDate
+                            ).toLocaleDateString()} - ${new Date(
+                              dateRange.endDate
+                            ).toLocaleDateString()}`
+                          : dateRange.startDate
+                          ? `From ${new Date(
+                              dateRange.startDate
+                            ).toLocaleDateString()}`
+                          : `Until ${new Date(
+                              dateRange.endDate
+                            ).toLocaleDateString()}`}
+                      </span>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Budget Selection */}
