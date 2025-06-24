@@ -12,6 +12,7 @@ const BudgetCard = ({ budget, onEdit, onDelete, onExpenseDeduct }) => {
       setIsAnimating(true);
       setTimeout(() => setIsAnimating(false), 600);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [budget.spent]);
 
   return (
