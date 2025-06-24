@@ -507,7 +507,11 @@ const ExportReport = ({ budgets, expenses, onClose, user }) => {
                         startDate: e.target.value,
                       }))
                     }
-                    className="w-full p-2 border rounded-lg text-sm text-gray-900 text-center"
+                    className="w-full p-3 border rounded-lg text-sm text-gray-900 bg-white appearance-none min-h-[44px] focus:ring-2 focus:ring-amber-300 focus:border-amber-300"
+                    style={{
+                      WebkitAppearance: "none",
+                      MozAppearance: "textfield",
+                    }}
                   />
                   <input
                     type="date"
@@ -518,7 +522,11 @@ const ExportReport = ({ budgets, expenses, onClose, user }) => {
                         endDate: e.target.value,
                       }))
                     }
-                    className="p-2 border rounded-lg focus:ring-2 focus:ring-amber-300 text-sm"
+                    className="w-full p-3 border rounded-lg text-sm text-gray-900 bg-white appearance-none min-h-[44px] focus:ring-2 focus:ring-amber-300 focus:border-amber-300"
+                    style={{
+                      WebkitAppearance: "none",
+                      MozAppearance: "textfield",
+                    }}
                   />
                 </div>
                 {(dateRange.startDate || dateRange.endDate) && (
