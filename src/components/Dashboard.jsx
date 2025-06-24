@@ -1,15 +1,6 @@
 // components/Dashboard.js
 import React, { useEffect, useState } from "react";
-import {
-  Plus,
-  Minus,
-  DollarSign,
-  Calendar,
-  Menu,
-  X,
-  Download,
-  Clock,
-} from "lucide-react";
+import { Plus, Minus, Calendar, Menu, X, Download, Clock } from "lucide-react";
 import BudgetCard from "./BudgetCard";
 import BudgetForm from "./BudgetForm";
 import ExpenseForm from "./ExpenseForm";
@@ -176,6 +167,25 @@ const Dashboard = ({ user, onLogout }) => {
     });
   };
 
+  const formatDateTime = (date) => {
+    return `${formatDate(date)} | ${formatTime(date)}`;
+  };
+
+  const formatMobileDate = (date) => {
+    return date.toLocaleDateString("en-PH", {
+      month: "short",
+      day: "numeric",
+    });
+  };
+
+  const formatMobileTime = (date) => {
+    return date.toLocaleTimeString("en-PH", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+  };
+
   const closeMobileActions = () => {
     setShowBudgetForm(false);
     setShowExpenseForm(false);
@@ -184,38 +194,65 @@ const Dashboard = ({ user, onLogout }) => {
   };
 
   return (
-    <div className="min-h-screen bg-purple-50">
-      {/* Enhanced Header with Mobile Optimization */}
-      <header className="bg-white shadow-sm border-b sticky top-0 z-50">
+    <div className="min-h-screen" style={{ backgroundColor: "#F8F4E1" }}>
+      {/* Enhanced Header with Mobile Optimization and Brown Theme */}
+      <header
+        className="shadow-lg border-b sticky top-0 z-50 transition-all duration-300"
+        style={{
+          backgroundColor: "#F8F4E1",
+          borderBottomColor: "#AF8F6F",
+        }}
+      >
         <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
-          <div className="flex justify-between items-center h-14 sm:h-16">
-            {/* Logo Section - Responsive */}
+          <div className="flex justify-between items-center h-16 sm:h-18">
+            {/* Logo Section - Enhanced with Animation */}
             <div className="flex items-center min-w-0 flex-1">
-              <div className="flex items-center space-x-2 sm:space-x-3">
-                <div className="bg-purple-300 p-1.5 sm:p-2 rounded-lg">
-                  <DollarSign className="w-4 h-4 sm:w-6 sm:h-6 text-purple-800" />
+              <div className="flex items-center space-x-2 sm:space-x-4">
+                <div
+                  className="flex items-center justify-center w-10 h-10 sm:w-14 sm:h-14 rounded-xl shadow-md transform hover:scale-105 transition-all duration-300 flex-shrink-0"
+                  style={{ backgroundColor: "#74512D" }}
+                >
+                  <span
+                    className="text-xl sm:text-3xl font-semibold"
+                    style={{ color: "#F8F4E1" }}
+                  >
+                    ₱
+                  </span>
                 </div>
-                <h1 className="text-base sm:text-xl font-bold text-gray-900 truncate">
-                  Expense Tracker
-                </h1>
+                <div className="min-w-0 flex-1">
+                  <h1
+                    className="text-base sm:text-2xl font-bold truncate"
+                    style={{ color: "#543310" }}
+                  >
+                    Expense Tracker
+                  </h1>
+                  {/* Mobile Date and Time - Always Visible */}
+                  <div className="lg:hidden flex items-center space-x-1 mt-0.5">
+                    <Clock className="w-3 h-3" style={{ color: "#74512D" }} />
+                    <span
+                      className="text-xs font-medium"
+                      style={{ color: "#74512D" }}
+                    >
+                      {formatMobileDate(currentDateTime)} •{" "}
+                      {formatMobileTime(currentDateTime)}
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
 
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-4">
-              {/* Date Display */}
-              <div className="flex items-center space-x-2 bg-pink-100 text-pink-800 px-3 py-2 rounded-lg">
-                <Calendar className="w-4 h-4" />
+            <div className="hidden lg:flex items-center space-x-4">
+              {/* Combined Date and Time Display */}
+              <div
+                className="flex items-center space-x-2 px-4 py-2.5 rounded-xl shadow-sm transform hover:scale-105 transition-all duration-300"
+                style={{
+                  backgroundColor: "#E8DCC0",
+                  color: "#543310",
+                }}
+              >
                 <span className="text-sm font-medium">
-                  {formatDate(currentDateTime)}
-                </span>
-              </div>
-
-              {/* Time Display */}
-              <div className="flex items-center space-x-2 bg-blue-100 text-blue-800 px-3 py-2 rounded-lg">
-                <Clock className="w-4 h-4" />
-                <span className="text-sm font-medium">
-                  {formatTime(currentDateTime)}
+                  {formatDateTime(currentDateTime)}
                 </span>
               </div>
 
@@ -223,80 +260,102 @@ const Dashboard = ({ user, onLogout }) => {
               <button
                 onClick={() => setShowExportReport(true)}
                 disabled={Object.keys(budgets).length === 0}
-                className="flex items-center space-x-2 bg-green-100 text-green-800 px-3 py-2 rounded-lg hover:bg-green-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center space-x-2 px-4 py-2.5 rounded-xl shadow-sm hover:shadow-md transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{
+                  backgroundColor: "#AF8F6F",
+                  color: "#F8F4E1",
+                }}
                 title="Export Report"
               >
                 <Download className="w-4 h-4" />
                 <span className="text-sm font-medium">Export</span>
               </button>
 
-              <span className="text-sm text-gray-700 max-w-[150px] truncate">
+              <span
+                className="text-sm max-w-[150px] truncate px-3 py-2 rounded-lg"
+                style={{
+                  color: "#543310",
+                  backgroundColor: "#E8DCC0",
+                }}
+              >
                 Welcome, {user.email}
               </span>
               <button
                 onClick={handleSignOut}
-                className="bg-rose-100 text-rose-700 px-4 py-2 rounded-lg hover:bg-rose-200 transition-colors whitespace-nowrap"
+                className="px-5 py-2.5 rounded-xl font-medium shadow-sm hover:shadow-md transform hover:scale-105 transition-all duration-300 whitespace-nowrap"
+                style={{
+                  backgroundColor: "#B8906B",
+                  color: "#543310",
+                }}
               >
                 Sign Out
               </button>
             </div>
 
             {/* Mobile Menu Button */}
-            <div className="md:hidden">
+            <div className="lg:hidden">
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="p-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors"
+                className="p-2.5 sm:p-3 rounded-xl shadow-sm hover:shadow-md transform hover:scale-105 transition-all duration-300 flex-shrink-0"
+                style={{
+                  backgroundColor: "#AF8F6F",
+                  color: "#F8F4E1",
+                }}
               >
                 {mobileMenuOpen ? (
-                  <X className="w-5 h-5" />
+                  <X className="w-4 h-4 sm:w-5 sm:h-5" />
                 ) : (
-                  <Menu className="w-5 h-5" />
+                  <Menu className="w-4 h-4 sm:w-5 sm:h-5" />
                 )}
               </button>
             </div>
           </div>
 
-          {/* Mobile Navigation Menu */}
+          {/* Mobile Navigation Menu - Enhanced */}
           {mobileMenuOpen && (
-            <div className="md:hidden border-t bg-white py-3 px-3 space-y-3">
-              {/* Date and Time Display */}
-              <div className="grid grid-cols-2 gap-2">
-                <div className="flex items-center space-x-2 bg-pink-100 text-pink-800 px-3 py-2 rounded-lg">
-                  <Calendar className="w-4 h-4" />
-                  <span className="text-sm font-medium truncate">
-                    {formatDate(currentDateTime)}
-                  </span>
-                </div>
-                <div className="flex items-center space-x-2 bg-blue-100 text-blue-800 px-3 py-2 rounded-lg">
-                  <Clock className="w-4 h-4" />
-                  <span className="text-sm font-medium">
-                    {formatTime(currentDateTime)}
-                  </span>
-                </div>
-              </div>
-
+            <div
+              className="lg:hidden border-t py-4 px-3 space-y-4 animate-slide-down"
+              style={{
+                backgroundColor: "#F8F4E1",
+                borderTopColor: "#AF8F6F",
+              }}
+            >
               {/* Action Buttons */}
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row gap-3">
                 <button
                   onClick={() => {
                     setShowExportReport(true);
                     setMobileMenuOpen(false);
                   }}
                   disabled={Object.keys(budgets).length === 0}
-                  className="flex items-center space-x-2 bg-green-100 text-green-800 px-3 py-2 rounded-lg hover:bg-green-200 transition-colors disabled:opacity-50 flex-1 mr-2"
+                  className="flex items-center justify-center space-x-2 px-4 py-3 rounded-xl hover:shadow-md transition-all duration-300 disabled:opacity-50 flex-1"
+                  style={{
+                    backgroundColor: "#AF8F6F",
+                    color: "#F8F4E1",
+                  }}
                 >
                   <Download className="w-4 h-4" />
-                  <span className="text-sm">Export</span>
+                  <span className="text-sm font-medium">Export Report</span>
                 </button>
                 <button
                   onClick={handleSignOut}
-                  className="bg-rose-100 text-rose-700 px-3 py-2 rounded-lg hover:bg-rose-200 transition-colors text-sm"
+                  className="px-4 py-3 rounded-xl hover:shadow-md transition-all duration-300 text-sm font-medium"
+                  style={{
+                    backgroundColor: "#B8906B",
+                    color: "#543310",
+                  }}
                 >
                   Sign Out
                 </button>
               </div>
 
-              <div className="text-xs text-gray-600 truncate">
+              <div
+                className="text-sm truncate px-3 py-2 rounded-lg text-center"
+                style={{
+                  color: "#543310",
+                  backgroundColor: "#E8DCC0",
+                }}
+              >
                 Welcome, {user.email}
               </div>
             </div>
@@ -305,31 +364,55 @@ const Dashboard = ({ user, onLogout }) => {
       </header>
 
       {/* Main Content with Enhanced Mobile Padding */}
-      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-4 sm:py-6 lg:py-8">
-        {/* Summary Cards - Enhanced Mobile Layout */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8">
-          <div className="bg-blue-300 rounded-xl p-4 sm:p-6 text-blue-900">
-            <p className="text-xs sm:text-sm font-medium">Total Budget</p>
-            <p className="text-lg sm:text-2xl font-bold">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-6 sm:py-8 lg:py-10">
+        {/* Summary Cards - Enhanced with Brown Theme and Animations */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-8 sm:mb-10">
+          <div
+            className="rounded-2xl p-6 sm:p-8 shadow-lg transform hover:scale-105 transition-all duration-300"
+            style={{
+              backgroundColor: "#D4C4A8",
+              color: "#543310",
+            }}
+          >
+            <p className="text-sm sm:text-base font-medium opacity-80 mb-2">
+              Total Budget
+            </p>
+            <p className="text-2xl sm:text-3xl font-bold">
               ₱{totalBudget.toFixed(2)}
             </p>
           </div>
-          <div className="bg-red-300 rounded-xl p-4 sm:p-6 text-red-900">
-            <p className="text-xs sm:text-sm font-medium">Total Spent</p>
-            <p className="text-lg sm:text-2xl font-bold">
+          <div
+            className="rounded-2xl p-6 sm:p-8 shadow-lg transform hover:scale-105 transition-all duration-300"
+            style={{
+              backgroundColor: "#B8906B",
+              color: "#543310",
+            }}
+          >
+            <p className="text-sm sm:text-base font-medium opacity-80 mb-2">
+              Total Spent
+            </p>
+            <p className="text-2xl sm:text-3xl font-bold">
               ₱{totalSpent.toFixed(2)}
             </p>
           </div>
-          <div className="bg-green-300 rounded-xl p-4 sm:p-6 text-green-900 sm:col-span-2 lg:col-span-1">
-            <p className="text-xs sm:text-sm font-medium">Remaining</p>
-            <p className="text-lg sm:text-2xl font-bold">
+          <div
+            className="rounded-2xl p-6 sm:p-8 shadow-lg transform hover:scale-105 transition-all duration-300 sm:col-span-2 lg:col-span-1"
+            style={{
+              backgroundColor: "#AF8F6F",
+              color: "#F8F4E1",
+            }}
+          >
+            <p className="text-sm sm:text-base font-medium opacity-90 mb-2">
+              Remaining
+            </p>
+            <p className="text-2xl sm:text-3xl font-bold">
               ₱{(totalBudget - totalSpent).toFixed(2)}
             </p>
           </div>
         </div>
 
-        {/* Action Buttons - Mobile-First Design with Export */}
-        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-4 sm:mb-6">
+        {/* Action Buttons - Enhanced Mobile Design */}
+        <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 mb-6 sm:mb-8">
           <button
             onClick={() => {
               setShowBudgetForm((prev) => !prev);
@@ -337,12 +420,16 @@ const Dashboard = ({ user, onLogout }) => {
               setEditingBudget(null);
               setMobileMenuOpen(false);
             }}
-            className={`${
-              showBudgetForm ? "bg-purple-400" : "bg-purple-300"
-            } text-purple-900 px-4 sm:px-6 py-3 rounded-lg hover:bg-purple-400 transition-colors font-medium text-sm sm:text-base flex items-center justify-center`}
+            className={`px-6 sm:px-8 py-4 rounded-2xl font-semibold text-sm sm:text-base flex items-center justify-center shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 ${
+              showBudgetForm ? "scale-105 shadow-xl" : ""
+            }`}
+            style={{
+              backgroundColor: showBudgetForm ? "#74512D" : "#AF8F6F",
+              color: "#F8F4E1",
+            }}
           >
-            <Plus className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-            {showBudgetForm ? "Close Budget" : "Add Budget"}
+            <Plus className="w-5 h-5 sm:w-6 sm:h-6 mr-3" />
+            {showBudgetForm ? "Close Budget Form" : "Add New Budget"}
           </button>
           <button
             onClick={() => {
@@ -352,29 +439,43 @@ const Dashboard = ({ user, onLogout }) => {
               setMobileMenuOpen(false);
             }}
             disabled={Object.keys(budgets).length === 0}
-            className={`${
-              showExpenseForm ? "bg-pink-400" : "bg-pink-300"
-            } text-pink-900 px-4 sm:px-6 py-3 rounded-lg disabled:opacity-50 hover:bg-pink-400 transition-colors font-medium text-sm sm:text-base flex items-center justify-center`}
+            className={`px-6 sm:px-8 py-4 rounded-2xl font-semibold text-sm sm:text-base flex items-center justify-center shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed ${
+              showExpenseForm ? "scale-105 shadow-xl" : ""
+            }`}
+            style={{
+              backgroundColor: showExpenseForm ? "#74512D" : "#B8906B",
+              color: showExpenseForm ? "#F8F4E1" : "#543310",
+            }}
           >
-            <Minus className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-            {showExpenseForm ? "Close Expense" : "Add Expense"}
+            <Minus className="w-5 h-5 sm:w-6 sm:h-6 mr-3" />
+            {showExpenseForm ? "Close Expense Form" : "Add New Expense"}
           </button>
 
-          {/* Mobile Export Button - Only visible on mobile when there are budgets */}
+          {/* Mobile Export Button */}
           <button
             onClick={() => setShowExportReport(true)}
             disabled={Object.keys(budgets).length === 0}
-            className="sm:hidden bg-green-300 text-green-900 px-4 py-3 rounded-lg disabled:opacity-50 hover:bg-green-400 transition-colors font-medium text-sm flex items-center justify-center"
+            className="sm:hidden px-6 py-4 rounded-2xl font-semibold text-sm flex items-center justify-center shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 disabled:opacity-50"
+            style={{
+              backgroundColor: "#D4C4A8",
+              color: "#543310",
+            }}
           >
-            <Download className="w-4 h-4 mr-2" />
+            <Download className="w-5 h-5 mr-3" />
             Export Report
           </button>
         </div>
 
-        {/* Forms Section - Enhanced Mobile Layout */}
-        <div className="space-y-4 mb-6 sm:mb-8">
+        {/* Forms Section - Enhanced with Smooth Animations */}
+        <div className="space-y-6 mb-8 sm:mb-10">
           {showBudgetForm && (
-            <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-purple-200">
+            <div
+              className="p-6 sm:p-8 rounded-2xl shadow-xl border-2 animate-slide-down"
+              style={{
+                backgroundColor: "#F8F4E1",
+                borderColor: "#AF8F6F",
+              }}
+            >
               <BudgetForm
                 onSubmit={handleAddBudget}
                 onCancel={closeMobileActions}
@@ -382,7 +483,13 @@ const Dashboard = ({ user, onLogout }) => {
             </div>
           )}
           {editingBudget && (
-            <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-purple-200">
+            <div
+              className="p-6 sm:p-8 rounded-2xl shadow-xl border-2 animate-slide-down"
+              style={{
+                backgroundColor: "#F8F4E1",
+                borderColor: "#74512D",
+              }}
+            >
               <BudgetForm
                 initialData={editingBudget}
                 onSubmit={handleEditBudget}
@@ -391,7 +498,13 @@ const Dashboard = ({ user, onLogout }) => {
             </div>
           )}
           {showExpenseForm && (
-            <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-pink-200">
+            <div
+              className="p-6 sm:p-8 rounded-2xl shadow-xl border-2 animate-slide-down"
+              style={{
+                backgroundColor: "#F8F4E1",
+                borderColor: "#B8906B",
+              }}
+            >
               <ExpenseForm
                 budgets={budgets}
                 onSubmit={handleAddExpense}
@@ -401,25 +514,41 @@ const Dashboard = ({ user, onLogout }) => {
           )}
         </div>
 
-        {/* Main Content Grid - Mobile-Optimized */}
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 sm:gap-8">
+        {/* Main Content Grid - Enhanced Mobile Layout */}
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 sm:gap-10">
           {/* Budgets Section */}
-          <div className="space-y-4">
-            <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
+          <div className="space-y-6">
+            <h2
+              className="text-xl sm:text-2xl font-bold"
+              style={{ color: "#543310" }}
+            >
               Your Budgets
             </h2>
             {Object.keys(budgets).length === 0 ? (
-              <div className="bg-white p-6 sm:p-8 rounded-xl shadow-sm border border-gray-200">
-                <p className="text-gray-500 text-center text-sm sm:text-base">
-                  No budgets yet. Create one!
+              <div
+                className="p-8 sm:p-12 rounded-2xl shadow-lg text-center"
+                style={{
+                  backgroundColor: "#F8F4E1",
+                  border: `2px dashed #AF8F6F`,
+                }}
+              >
+                <p
+                  className="text-base sm:text-lg font-medium"
+                  style={{ color: "#74512D" }}
+                >
+                  No budgets yet. Create your first one!
                 </p>
               </div>
             ) : (
-              <div className="space-y-3 sm:space-y-4">
-                {Object.entries(budgets).map(([id, budget]) => (
+              <div className="space-y-4 sm:space-y-6">
+                {Object.entries(budgets).map(([id, budget], index) => (
                   <div
                     key={id}
-                    className="bg-white rounded-xl shadow-sm border border-gray-200"
+                    className="rounded-2xl shadow-lg transform hover:scale-105 transition-all duration-300 animate-fade-in"
+                    style={{
+                      backgroundColor: "#F8F4E1",
+                      animationDelay: `${index * 100}ms`,
+                    }}
                   >
                     <BudgetCard
                       budget={budget}
@@ -432,8 +561,11 @@ const Dashboard = ({ user, onLogout }) => {
             )}
           </div>
 
-          {/* Expenses Section */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
+          {/* Expenses Section - Reduced padding for mobile */}
+          <div
+            className="rounded-2xl shadow-lg p-1 sm:p-6 md:p-8"
+            style={{ backgroundColor: "#F8F4E1" }}
+          >
             <ExpenseList
               expenses={expenses}
               budgets={budgets}
@@ -453,20 +585,35 @@ const Dashboard = ({ user, onLogout }) => {
         />
       )}
 
-      {/* Enhanced Modal for Mobile with Dynamic Content */}
+      {/* Enhanced Modal with Traditional Background */}
       {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black bg-opacity-30 p-4">
-          <div className="bg-white p-4 sm:p-6 rounded-xl shadow-lg max-w-sm w-full border border-gray-200">
-            <h2 className="text-base sm:text-lg font-semibold mb-2 text-gray-900">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white bg-opacity-70 p-4 animate-fade-in">
+          <div
+            className="p-6 sm:p-8 rounded-2xl shadow-2xl max-w-sm w-full border-2 transform scale-100 animate-scale-in"
+            style={{
+              backgroundColor: "#F8F4E1",
+              borderColor: "#AF8F6F",
+            }}
+          >
+            <h2
+              className="text-lg sm:text-xl font-bold mb-3"
+              style={{ color: "#543310" }}
+            >
               {modalTitle}
             </h2>
             {modalMessage && (
-              <p className="text-sm text-gray-600 mb-4">{modalMessage}</p>
+              <p className="text-sm mb-6" style={{ color: "#74512D" }}>
+                {modalMessage}
+              </p>
             )}
             <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 sm:gap-4">
               <button
                 onClick={() => setModalOpen(false)}
-                className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors text-sm sm:text-base"
+                className="px-6 py-3 rounded-xl font-medium hover:shadow-md transform hover:scale-105 transition-all duration-300 text-sm sm:text-base"
+                style={{
+                  backgroundColor: "#E8DCC0",
+                  color: "#543310",
+                }}
               >
                 Cancel
               </button>
@@ -475,7 +622,11 @@ const Dashboard = ({ user, onLogout }) => {
                   confirmAction();
                   setModalOpen(false);
                 }}
-                className="px-4 py-2 bg-red-300 text-red-900 rounded-lg hover:bg-red-400 transition-colors text-sm sm:text-base"
+                className="px-6 py-3 rounded-xl font-medium hover:shadow-md transform hover:scale-105 transition-all duration-300 text-sm sm:text-base"
+                style={{
+                  backgroundColor: "#B8906B",
+                  color: "#543310",
+                }}
               >
                 {modalTitle === "Sign Out" ? "Sign Out" : "Confirm"}
               </button>
@@ -483,6 +634,52 @@ const Dashboard = ({ user, onLogout }) => {
           </div>
         </div>
       )}
+
+      {/* Add Custom CSS for Animations */}
+      <style jsx>{`
+        @keyframes slide-down {
+          from {
+            opacity: 0;
+            transform: translateY(-20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        @keyframes fade-in {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
+        }
+
+        @keyframes scale-in {
+          from {
+            opacity: 0;
+            transform: scale(0.95);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+
+        .animate-slide-down {
+          animation: slide-down 0.3s ease-out;
+        }
+
+        .animate-fade-in {
+          animation: fade-in 0.5s ease-out;
+        }
+
+        .animate-scale-in {
+          animation: scale-in 0.2s ease-out;
+        }
+      `}</style>
     </div>
   );
 };
