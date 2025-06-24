@@ -398,10 +398,7 @@ const ExportReport = ({ budgets, expenses, onClose, user }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-2 sm:p-4">
-      <div
-        style={{ backgroundColor: "#F8F4E1" }}
-        className="rounded-lg shadow-xl w-full max-w-4xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden"
-      >
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden">
         {/* Header */}
         <div className="bg-gradient-to-r from-amber-600 to-amber-600 text-amber-100 p-3 sm:p-4">
           <div className="flex justify-between items-center">
@@ -510,7 +507,7 @@ const ExportReport = ({ budgets, expenses, onClose, user }) => {
                         startDate: e.target.value,
                       }))
                     }
-                    className="p-2 border rounded-lg focus:ring-2 focus:ring-amber-300 text-sm"
+                    className="w-full p-2 border rounded-lg text-sm text-gray-900 text-center"
                   />
                   <input
                     type="date"
@@ -684,7 +681,7 @@ const ExportReport = ({ budgets, expenses, onClose, user }) => {
         <div className="bg-amber-50 p-3 sm:p-4 border-t flex flex-col sm:flex-row justify-between items-center gap-3">
           <div className="text-xs sm:text-sm text-amber-600 text-center sm:text-left">
             {stats.expenseCount} expenses from {selectedCount} budgets
-            {exportFormat === "pdf" && " • Professional PDF format"}
+            {exportFormat === "pdf"}
           </div>
           <div className="flex gap-2 sm:gap-3 w-full sm:w-auto">
             <button

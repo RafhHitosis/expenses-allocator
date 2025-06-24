@@ -194,7 +194,7 @@ const Dashboard = ({ user, onLogout }) => {
   };
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: "#F8F4E1" }}>
+    <div className="min-h-screen" style={{ backgroundColor: "white" }}>
       {/* Enhanced Header with Mobile Optimization and Brown Theme */}
       <header
         className="shadow-lg border-b sticky top-0 z-50 transition-all duration-300"
