@@ -1,6 +1,15 @@
 // components/Dashboard.js
-import React, { useEffect, useState } from "react";
-import { Plus, Minus, Calendar, Menu, X, Download, Clock } from "lucide-react";
+import React, { useEffect, useState, useRef } from "react";
+import {
+  Plus,
+  Minus,
+  Calendar,
+  Menu,
+  X,
+  Download,
+  Clock,
+  FileText,
+} from "lucide-react";
 import BudgetCard from "./BudgetCard";
 import BudgetForm from "./BudgetForm";
 import ExpenseForm from "./ExpenseForm";
@@ -22,6 +31,22 @@ const Dashboard = ({ user, onLogout }) => {
   const [modalMessage, setModalMessage] = useState("");
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showFABMenu, setShowFABMenu] = useState(false);
+
+  // Refs for auto-scroll
+  const budgetFormRef = useRef(null);
+  const expenseFormRef = useRef(null);
+
+  // Auto-scroll function
+  const scrollToElement = (elementRef) => {
+    if (elementRef.current) {
+      elementRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+        inline: "nearest",
+      });
+    }
+  };
 
   // Update current date and time every second
   useEffect(() => {
@@ -71,6 +96,7 @@ const Dashboard = ({ user, onLogout }) => {
     const newRef = push(ref(database, `budgets/${user.uid}`));
     await set(newRef, { ...budgetData, id: newRef.key });
     setShowBudgetForm(false);
+    setShowFABMenu(false);
   };
 
   const handleEditBudget = async (budgetData) => {
@@ -109,6 +135,7 @@ const Dashboard = ({ user, onLogout }) => {
     }
 
     setShowExpenseForm(false);
+    setShowFABMenu(false);
   };
 
   const handleDeleteExpense = (expenseId) => {
@@ -148,6 +175,31 @@ const Dashboard = ({ user, onLogout }) => {
     setShowBudgetForm(false);
     setShowExpenseForm(false);
     setEditingBudget(budget);
+    setShowFABMenu(false);
+    // Auto-scroll to budget form after a small delay
+    setTimeout(() => scrollToElement(budgetFormRef), 100);
+  };
+
+  const handleBudgetFormToggle = () => {
+    setShowBudgetForm((prev) => !prev);
+    setShowExpenseForm(false);
+    setEditingBudget(null);
+    setShowFABMenu(false);
+    // Auto-scroll to budget form after a small delay
+    if (!showBudgetForm) {
+      setTimeout(() => scrollToElement(budgetFormRef), 100);
+    }
+  };
+
+  const handleExpenseFormToggle = () => {
+    setShowExpenseForm((prev) => !prev);
+    setShowBudgetForm(false);
+    setEditingBudget(null);
+    setShowFABMenu(false);
+    // Auto-scroll to expense form after a small delay
+    if (!showExpenseForm) {
+      setTimeout(() => scrollToElement(expenseFormRef), 100);
+    }
   };
 
   const formatDate = (date) => {
@@ -191,13 +243,14 @@ const Dashboard = ({ user, onLogout }) => {
     setShowExpenseForm(false);
     setEditingBudget(null);
     setMobileMenuOpen(false);
+    setShowFABMenu(false);
   };
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: "white" }}>
+    <div className="min-h-screen relative" style={{ backgroundColor: "white" }}>
       {/* Enhanced Header with Mobile Optimization and Brown Theme */}
       <header
-        className="shadow-lg border-b sticky top-0 z-50 transition-all duration-300"
+        className="shadow-lg border-b sticky top-0 z-40 transition-all duration-300"
         style={{
           backgroundColor: "#F8F4E1",
           borderBottomColor: "#AF8F6F",
@@ -320,15 +373,26 @@ const Dashboard = ({ user, onLogout }) => {
                 borderTopColor: "#AF8F6F",
               }}
             >
+              {/* User Info */}
+              <div
+                className="text-sm truncate px-3 py-2 rounded-lg text-center"
+                style={{
+                  color: "#543310",
+                  backgroundColor: "#E8DCC0",
+                }}
+              >
+                Welcome, {user.email}
+              </div>
+
               {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex flex-col gap-3">
                 <button
                   onClick={() => {
                     setShowExportReport(true);
                     setMobileMenuOpen(false);
                   }}
                   disabled={Object.keys(budgets).length === 0}
-                  className="flex items-center justify-center space-x-2 px-4 py-3 rounded-xl hover:shadow-md transition-all duration-300 disabled:opacity-50 flex-1"
+                  className="flex items-center justify-center space-x-2 px-4 py-3 rounded-xl hover:shadow-md transition-all duration-300 disabled:opacity-50"
                   style={{
                     backgroundColor: "#AF8F6F",
                     color: "#F8F4E1",
@@ -348,23 +412,13 @@ const Dashboard = ({ user, onLogout }) => {
                   Sign Out
                 </button>
               </div>
-
-              <div
-                className="text-sm truncate px-3 py-2 rounded-lg text-center"
-                style={{
-                  color: "#543310",
-                  backgroundColor: "#E8DCC0",
-                }}
-              >
-                Welcome, {user.email}
-              </div>
             </div>
           )}
         </div>
       </header>
 
       {/* Main Content with Enhanced Mobile Padding */}
-      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-6 sm:py-8 lg:py-10">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-6 sm:py-8 lg:py-10 pb-24 lg:pb-10">
         {/* Summary Cards - Enhanced with Brown Theme and Animations */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-8 sm:mb-10">
           <div
@@ -411,16 +465,11 @@ const Dashboard = ({ user, onLogout }) => {
           </div>
         </div>
 
-        {/* Action Buttons - Enhanced Mobile Design */}
-        <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 mb-6 sm:mb-8">
+        {/* Desktop Action Buttons - Only show on desktop */}
+        <div className="hidden lg:flex flex-row gap-6 mb-8">
           <button
-            onClick={() => {
-              setShowBudgetForm((prev) => !prev);
-              setShowExpenseForm(false);
-              setEditingBudget(null);
-              setMobileMenuOpen(false);
-            }}
-            className={`px-6 sm:px-8 py-4 rounded-2xl font-semibold text-sm sm:text-base flex items-center justify-center shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 ${
+            onClick={handleBudgetFormToggle}
+            className={`px-8 py-4 rounded-2xl font-semibold text-base flex items-center justify-center shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 ${
               showBudgetForm ? "scale-105 shadow-xl" : ""
             }`}
             style={{
@@ -428,18 +477,13 @@ const Dashboard = ({ user, onLogout }) => {
               color: "#F8F4E1",
             }}
           >
-            <Plus className="w-5 h-5 sm:w-6 sm:h-6 mr-3" />
+            <Plus className="w-6 h-6 mr-3" />
             {showBudgetForm ? "Close Budget Form" : "Add New Budget"}
           </button>
           <button
-            onClick={() => {
-              setShowExpenseForm((prev) => !prev);
-              setShowBudgetForm(false);
-              setEditingBudget(null);
-              setMobileMenuOpen(false);
-            }}
+            onClick={handleExpenseFormToggle}
             disabled={Object.keys(budgets).length === 0}
-            className={`px-6 sm:px-8 py-4 rounded-2xl font-semibold text-sm sm:text-base flex items-center justify-center shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed ${
+            className={`px-8 py-4 rounded-2xl font-semibold text-base flex items-center justify-center shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed ${
               showExpenseForm ? "scale-105 shadow-xl" : ""
             }`}
             style={{
@@ -447,22 +491,8 @@ const Dashboard = ({ user, onLogout }) => {
               color: showExpenseForm ? "#F8F4E1" : "#543310",
             }}
           >
-            <Minus className="w-5 h-5 sm:w-6 sm:h-6 mr-3" />
+            <Minus className="w-6 h-6 mr-3" />
             {showExpenseForm ? "Close Expense Form" : "Add New Expense"}
-          </button>
-
-          {/* Mobile Export Button */}
-          <button
-            onClick={() => setShowExportReport(true)}
-            disabled={Object.keys(budgets).length === 0}
-            className="sm:hidden px-6 py-4 rounded-2xl font-semibold text-sm flex items-center justify-center shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 disabled:opacity-50"
-            style={{
-              backgroundColor: "#D4C4A8",
-              color: "#543310",
-            }}
-          >
-            <Download className="w-5 h-5 mr-3" />
-            Export Report
           </button>
         </div>
 
@@ -470,6 +500,7 @@ const Dashboard = ({ user, onLogout }) => {
         <div className="space-y-6 mb-8 sm:mb-10">
           {showBudgetForm && (
             <div
+              ref={budgetFormRef}
               className="p-6 sm:p-8 rounded-2xl shadow-xl border-2 animate-slide-down"
               style={{
                 backgroundColor: "#F8F4E1",
@@ -484,6 +515,7 @@ const Dashboard = ({ user, onLogout }) => {
           )}
           {editingBudget && (
             <div
+              ref={budgetFormRef}
               className="p-6 sm:p-8 rounded-2xl shadow-xl border-2 animate-slide-down"
               style={{
                 backgroundColor: "#F8F4E1",
@@ -499,6 +531,7 @@ const Dashboard = ({ user, onLogout }) => {
           )}
           {showExpenseForm && (
             <div
+              ref={expenseFormRef}
               className="p-6 sm:p-8 rounded-2xl shadow-xl border-2 animate-slide-down"
               style={{
                 backgroundColor: "#F8F4E1",
@@ -575,6 +608,116 @@ const Dashboard = ({ user, onLogout }) => {
         </div>
       </div>
 
+      {/* Mobile FAB (Floating Action Button) - Only show on mobile */}
+      <div className="lg:hidden">
+        {/* FAB Menu Background Overlay */}
+        {showFABMenu && (
+          <div
+            className="fixed inset-0 bg-black bg-opacity-30 z-40 animate-fade-in"
+            onClick={() => setShowFABMenu(false)}
+          />
+        )}
+
+        {/* FAB Menu Items */}
+        {showFABMenu && (
+          <div className="fixed bottom-24 right-4 z-50 space-y-3 animate-slide-up">
+            {/* Export Report FAB */}
+            <div className="flex items-center space-x-3">
+              <div
+                className="px-3 py-2 rounded-full shadow-lg"
+                style={{
+                  backgroundColor: "#F8F4E1",
+                  color: "#543310",
+                }}
+              >
+                <span className="text-sm font-medium whitespace-nowrap">
+                  Export Report
+                </span>
+              </div>
+              <button
+                onClick={() => {
+                  setShowExportReport(true);
+                  setShowFABMenu(false);
+                }}
+                disabled={Object.keys(budgets).length === 0}
+                className="w-12 h-12 rounded-full shadow-lg flex items-center justify-center transform hover:scale-110 transition-all duration-300 disabled:opacity-50"
+                style={{
+                  backgroundColor: "#D4C4A8",
+                  color: "#543310",
+                }}
+              >
+                <FileText className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Add Expense FAB */}
+            <div className="flex items-center space-x-3">
+              <div
+                className="px-3 py-2 rounded-full shadow-lg"
+                style={{
+                  backgroundColor: "#F8F4E1",
+                  color: "#543310",
+                }}
+              >
+                <span className="text-sm font-medium whitespace-nowrap">
+                  Add Expense
+                </span>
+              </div>
+              <button
+                onClick={handleExpenseFormToggle}
+                disabled={Object.keys(budgets).length === 0}
+                className="w-12 h-12 rounded-full shadow-lg flex items-center justify-center transform hover:scale-110 transition-all duration-300 disabled:opacity-50"
+                style={{
+                  backgroundColor: "#B8906B",
+                  color: "#F8F4E1",
+                }}
+              >
+                <Minus className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Add Budget FAB */}
+            <div className="flex items-center space-x-3">
+              <div
+                className="px-3 py-2 rounded-full shadow-lg"
+                style={{
+                  backgroundColor: "#F8F4E1",
+                  color: "#543310",
+                }}
+              >
+                <span className="text-sm font-medium whitespace-nowrap">
+                  Add Budget
+                </span>
+              </div>
+              <button
+                onClick={handleBudgetFormToggle}
+                className="w-12 h-12 rounded-full shadow-lg flex items-center justify-center transform hover:scale-110 transition-all duration-300"
+                style={{
+                  backgroundColor: "#AF8F6F",
+                  color: "#F8F4E1",
+                }}
+              >
+                <Plus className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Main FAB Button */}
+        <button
+          onClick={() => setShowFABMenu(!showFABMenu)}
+          className={`fixed bottom-6 right-4 w-14 h-14 rounded-full shadow-2xl flex items-center justify-center z-50 transform transition-all duration-300 ${
+            showFABMenu ? "rotate-45 scale-110" : "hover:scale-110"
+          }`}
+          style={{
+            backgroundColor: showFABMenu ? "#74512D" : "#AF8F6F",
+            color: "#F8F4E1",
+          }}
+        >
+          <Plus className="w-6 h-6" />
+        </button>
+      </div>
+
       {/* Export Report Modal */}
       {showExportReport && (
         <ExportReport
@@ -648,6 +791,17 @@ const Dashboard = ({ user, onLogout }) => {
           }
         }
 
+        @keyframes slide-up {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
         @keyframes fade-in {
           from {
             opacity: 0;
@@ -672,12 +826,60 @@ const Dashboard = ({ user, onLogout }) => {
           animation: slide-down 0.3s ease-out;
         }
 
+        .animate-slide-up {
+          animation: slide-up 0.3s ease-out;
+        }
+
         .animate-fade-in {
           animation: fade-in 0.5s ease-out;
         }
 
         .animate-scale-in {
           animation: scale-in 0.2s ease-out;
+        }
+
+        /* Smooth scroll behavior */
+        html {
+          scroll-behavior: smooth;
+        }
+
+        /* FAB ripple effect */
+        @keyframes ripple {
+          0% {
+            transform: scale(0);
+            opacity: 1;
+          }
+          100% {
+            transform: scale(4);
+            opacity: 0;
+          }
+        }
+
+        .fab-ripple {
+          position: absolute;
+          border-radius: 50%;
+          background: rgba(255, 255, 255, 0.6);
+          transform: scale(0);
+          animation: ripple 0.6s ease-out;
+        }
+
+        /* Hide scrollbar for webkit browsers */
+        ::-webkit-scrollbar {
+          width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+          background: #f1f1f1;
+          border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+          background: #af8f6f;
+          border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+          background: #74512d;
         }
       `}</style>
     </div>

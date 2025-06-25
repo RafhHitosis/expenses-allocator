@@ -160,200 +160,472 @@ const ExportReport = ({ budgets, expenses, onClose, user }) => {
     }
 
     const doc = new window.jsPDF();
-    const formatCurrency = (amount) => `₱${amount.toFixed(2)}`;
+    // Use PHP symbol as fallback for peso
+    const formatCurrency = (amount) => `PHP ${amount.toFixed(2)}`;
     const formatDate = (date) => new Date(date).toLocaleDateString();
 
-    let yPos = 20;
-    const margin = 20;
-    const pageWidth = doc.internal.pageSize.width;
-    const lineHeight = 6;
-
-    // Helper function to add new page if needed
-    const checkPageBreak = (requiredSpace = 20) => {
-      if (yPos + requiredSpace > doc.internal.pageSize.height - 20) {
-        doc.addPage();
-        yPos = 20;
-      }
+    // Modern color palette - Professional browns
+    const colors = {
+      primary: [101, 67, 33], // Dark brown
+      secondary: [139, 69, 19], // Saddle brown
+      accent: [160, 82, 45], // Sienna
+      light: [250, 245, 240], // Light cream
+      text: [62, 39, 35], // Very dark brown
+      background: [248, 248, 248], // Light gray
+      border: [180, 140, 100], // Light brown border
     };
 
-    // Header
-    doc.setFontSize(20);
-    doc.setFont(undefined, "bold");
-    doc.text("EXPENSE REPORT", pageWidth / 2, yPos, { align: "center" });
-    yPos += 15;
+    let yPos = 30;
+    const margin = 20;
+    const pageWidth = doc.internal.pageSize.width;
+    const contentWidth = pageWidth - margin * 2;
+
+    // Helper function to add new page if needed
+    const checkPageBreak = (requiredSpace = 30) => {
+      if (yPos + requiredSpace > doc.internal.pageSize.height - 35) {
+        doc.addPage();
+        yPos = 30;
+        return true;
+      }
+      return false;
+    };
+
+    // Helper function to draw a clean box with better borders
+    const drawBox = (
+      x,
+      y,
+      width,
+      height,
+      fillColor,
+      borderColor,
+      borderWidth = 0.3
+    ) => {
+      doc.setFillColor(...fillColor);
+      doc.setDrawColor(...borderColor);
+      doc.setLineWidth(borderWidth);
+      doc.rect(x, y, width, height, "FD");
+    };
+
+    // Header with improved design
+    drawBox(margin, yPos, contentWidth, 32, colors.primary, colors.primary);
+
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(22);
+    doc.setFont("times", "bold");
+    doc.text("EXPENSE REPORT", pageWidth / 2, yPos + 12, { align: "center" });
 
     doc.setFontSize(10);
-    doc.setFont(undefined, "normal");
-    doc.text(`Generated: ${new Date().toLocaleString()}`, pageWidth / 2, yPos, {
+    doc.setFont("times", "normal");
+    const currentDate = new Date().toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      timeZone: "Asia/Manila",
+    });
+    doc.text(`Generated: ${currentDate}`, pageWidth / 2, yPos + 20, {
       align: "center",
     });
-    yPos += 5;
-    doc.text(`User: ${user.email}`, pageWidth / 2, yPos, { align: "center" });
-    yPos += 15;
+    doc.text(`User: ${user.email}`, pageWidth / 2, yPos + 26, {
+      align: "center",
+    });
+    yPos += 42;
 
-    // Summary Section
+    // Summary Section with fixed alignment
     if (includeOptions.summary) {
-      checkPageBreak(30);
-      doc.setFontSize(14);
-      doc.setFont(undefined, "bold");
-      doc.text("SUMMARY", margin, yPos);
-      yPos += 10;
+      checkPageBreak(70);
 
-      doc.setFontSize(10);
-      doc.setFont(undefined, "normal");
-      const summaryData = [
-        ["Total Budget:", formatCurrency(stats.totalBudget)],
-        ["Total Spent:", formatCurrency(stats.totalSpent)],
-        ["Remaining:", formatCurrency(stats.remaining)],
-        ["Number of Budgets:", stats.budgetCount.toString()],
-        ["Number of Expenses:", stats.expenseCount.toString()],
+      // Section header
+      doc.setTextColor(...colors.primary);
+      doc.setFontSize(16);
+      doc.setFont("times", "bold");
+      doc.text("FINANCIAL SUMMARY", margin, yPos);
+      yPos += 18;
+
+      // Calculate card dimensions for proper alignment
+      const totalCards = 3;
+      const cardSpacing = 8;
+      const totalSpacing = cardSpacing * (totalCards - 1);
+      const cardWidth = (contentWidth - totalSpacing) / totalCards;
+      const cardHeight = 28;
+
+      const summaryCards = [
+        {
+          label: "Total Budget",
+          value: formatCurrency(stats.totalBudget),
+          color: [34, 139, 34], // Green
+        },
+        {
+          label: "Total Spent",
+          value: formatCurrency(stats.totalSpent),
+          color: [220, 20, 60], // Red
+        },
+        {
+          label: "Remaining",
+          value: formatCurrency(stats.remaining),
+          color: stats.remaining >= 0 ? [34, 139, 34] : [220, 20, 60],
+        },
       ];
 
-      summaryData.forEach(([label, value]) => {
-        doc.text(label, margin, yPos);
-        doc.text(value, margin + 50, yPos);
-        yPos += lineHeight;
+      // Draw cards with perfect alignment
+      summaryCards.forEach((card, index) => {
+        const x = margin + index * (cardWidth + cardSpacing);
+
+        // Card background with subtle border
+        drawBox(
+          x,
+          yPos,
+          cardWidth,
+          cardHeight,
+          colors.background,
+          colors.border,
+          0.5
+        );
+
+        // Card label
+        doc.setTextColor(...colors.text);
+        doc.setFontSize(9);
+        doc.setFont("times", "normal");
+        const labelY = yPos + 10;
+        doc.text(card.label, x + cardWidth / 2, labelY, { align: "center" });
+
+        // Card value - properly centered
+        doc.setTextColor(...card.color);
+        doc.setFontSize(12);
+        doc.setFont("times", "bold");
+        const valueY = yPos + 20;
+        doc.text(card.value, x + cardWidth / 2, valueY, { align: "center" });
       });
-      yPos += 10;
+
+      yPos += cardHeight + 15;
+
+      // Additional stats bar
+      drawBox(margin, yPos, contentWidth, 12, colors.light, colors.border);
+      doc.setTextColor(...colors.text);
+      doc.setFontSize(10);
+      doc.setFont("times", "normal");
+      doc.text(
+        `Report includes ${stats.budgetCount} budgets and ${stats.expenseCount} transactions`,
+        margin + 8,
+        yPos + 8
+      );
+      yPos += 22;
     }
 
-    // Budget Details Section
+    // Budget Details Section with improved table
     if (
       includeOptions.budgetDetails &&
       Object.keys(filteredData.budgets).length > 0
     ) {
-      checkPageBreak(40);
-      doc.setFontSize(14);
-      doc.setFont(undefined, "bold");
-      doc.text("BUDGET DETAILS", margin, yPos);
-      yPos += 10;
+      checkPageBreak(55);
 
-      // Table headers
-      doc.setFontSize(9);
-      doc.setFont(undefined, "bold");
-      doc.text("Budget Name", margin, yPos);
-      doc.text("Amount", margin + 70, yPos);
-      doc.text("Spent", margin + 110, yPos);
-      doc.text("Remaining", margin + 140, yPos);
-      doc.text("Progress", margin + 170, yPos);
-      yPos += 8;
+      doc.setTextColor(...colors.primary);
+      doc.setFontSize(16);
+      doc.setFont("times", "bold");
+      doc.text("BUDGET BREAKDOWN", margin, yPos);
+      yPos += 18;
 
-      // Draw header line
-      doc.line(margin, yPos - 2, pageWidth - margin, yPos - 2);
-      yPos += 2;
+      // Table with precise column widths
+      const tableWidth = contentWidth;
+      const colWidths = [
+        tableWidth * 0.4, // Budget name
+        tableWidth * 0.2, // Allocated
+        tableWidth * 0.2, // Spent
+        tableWidth * 0.2, // Progress
+      ];
+      const headers = ["Budget Category", "Allocated", "Spent", "Progress"];
+      const headerHeight = 12;
+      const rowHeight = 10;
 
-      doc.setFont(undefined, "normal");
-      Object.values(filteredData.budgets).forEach((budget) => {
-        checkPageBreak(15);
-        const progress =
-          budget.amount > 0
-            ? ((budget.spent / budget.amount) * 100).toFixed(1)
-            : "0.0";
+      // Table header
+      drawBox(
+        margin,
+        yPos,
+        tableWidth,
+        headerHeight,
+        colors.secondary,
+        colors.secondary
+      );
 
-        doc.text(budget.name.substring(0, 25), margin, yPos);
-        doc.text(formatCurrency(budget.amount), margin + 70, yPos);
-        doc.text(formatCurrency(budget.spent), margin + 110, yPos);
-        doc.text(
-          formatCurrency(budget.amount - budget.spent),
-          margin + 140,
-          yPos
-        );
-        doc.text(`${progress}%`, margin + 170, yPos);
-        yPos += lineHeight;
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(10);
+      doc.setFont("times", "bold");
+
+      let xPos = margin;
+      headers.forEach((header, index) => {
+        const centerX = xPos + colWidths[index] / 2;
+        doc.text(header, centerX, yPos + 8, { align: "center" });
+        xPos += colWidths[index];
       });
-      yPos += 10;
+      yPos += headerHeight;
+
+      // Table rows with alternating colors
+      doc.setFontSize(9);
+      doc.setFont("times", "normal");
+
+      Object.values(filteredData.budgets).forEach((budget, index) => {
+        checkPageBreak(12);
+
+        const rowColor = index % 2 === 0 ? colors.background : [255, 255, 255];
+        drawBox(
+          margin,
+          yPos,
+          tableWidth,
+          rowHeight,
+          rowColor,
+          colors.border,
+          0.2
+        );
+
+        const progress =
+          budget.amount > 0 ? (budget.spent / budget.amount) * 100 : 0;
+        const progressText = `${progress.toFixed(1)}%`;
+
+        // Row data with proper text truncation
+        const rowData = [
+          budget.name.length > 28
+            ? budget.name.substring(0, 25) + "..."
+            : budget.name,
+          formatCurrency(budget.amount),
+          formatCurrency(budget.spent),
+          progressText,
+        ];
+
+        xPos = margin;
+        rowData.forEach((data, colIndex) => {
+          doc.setTextColor(...colors.text);
+
+          if (colIndex === 3) {
+            // Progress with color coding
+            if (progress > 90) doc.setTextColor(220, 20, 60);
+            else if (progress > 70) doc.setTextColor(255, 140, 0);
+            else doc.setTextColor(34, 139, 34);
+          }
+
+          const centerX = xPos + colWidths[colIndex] / 2;
+          const textAlign = colIndex === 0 ? "left" : "center";
+          const textX = colIndex === 0 ? xPos + 5 : centerX;
+
+          doc.text(data, textX, yPos + 7, { align: textAlign });
+          xPos += colWidths[colIndex];
+        });
+        yPos += rowHeight;
+      });
+      yPos += 15;
     }
 
-    // Expense Details Section
+    // Expense Details Section with better formatting
     if (
       includeOptions.expenseDetails &&
       Object.keys(filteredData.expenses).length > 0
     ) {
-      checkPageBreak(40);
-      doc.setFontSize(14);
-      doc.setFont(undefined, "bold");
-      doc.text("EXPENSE DETAILS", margin, yPos);
-      yPos += 10;
+      checkPageBreak(55);
 
-      // Table headers
-      doc.setFontSize(9);
-      doc.setFont(undefined, "bold");
-      doc.text("Date", margin, yPos);
-      doc.text("Expense Name", margin + 30, yPos);
-      doc.text("Amount", margin + 100, yPos);
-      doc.text("Budget", margin + 140, yPos);
-      yPos += 8;
+      doc.setTextColor(...colors.primary);
+      doc.setFontSize(16);
+      doc.setFont("times", "bold");
+      doc.text("TRANSACTION DETAILS", margin, yPos);
+      yPos += 18;
 
-      // Draw header line
-      doc.line(margin, yPos - 2, pageWidth - margin, yPos - 2);
-      yPos += 2;
+      // Table with optimized column widths
+      const tableWidth = contentWidth;
+      const colWidths = [
+        tableWidth * 0.15, // Date
+        tableWidth * 0.45, // Description
+        tableWidth * 0.2, // Amount
+        tableWidth * 0.2, // Category
+      ];
+      const headers = ["Date", "Description", "Amount", "Category"];
+      const headerHeight = 12;
+      const rowHeight = 9;
 
-      doc.setFont(undefined, "normal");
-      Object.values(filteredData.expenses)
-        .sort((a, b) => new Date(b.date) - new Date(a.date))
-        .forEach((expense) => {
-          checkPageBreak(10);
-          const budget = filteredData.budgets[expense.budgetId];
+      drawBox(
+        margin,
+        yPos,
+        tableWidth,
+        headerHeight,
+        colors.secondary,
+        colors.secondary
+      );
 
-          doc.text(formatDate(expense.date), margin, yPos);
-          doc.text(
-            (expense.name || "Unnamed").substring(0, 20),
-            margin + 30,
-            yPos
-          );
-          doc.text(formatCurrency(expense.amount), margin + 100, yPos);
-          doc.text(
-            (budget?.name || "Unknown").substring(0, 15),
-            margin + 140,
-            yPos
-          );
-          yPos += lineHeight;
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(10);
+      doc.setFont("times", "bold");
+
+      let xPos = margin;
+      headers.forEach((header, index) => {
+        const centerX = xPos + colWidths[index] / 2;
+        doc.text(header, centerX, yPos + 8, { align: "center" });
+        xPos += colWidths[index];
+      });
+      yPos += headerHeight;
+
+      // Table rows
+      doc.setFontSize(8);
+      doc.setFont("times", "normal");
+
+      const sortedExpenses = Object.values(filteredData.expenses).sort(
+        (a, b) => new Date(b.date) - new Date(a.date)
+      );
+
+      sortedExpenses.forEach((expense, index) => {
+        checkPageBreak(10);
+
+        const rowColor = index % 2 === 0 ? colors.background : [255, 255, 255];
+        drawBox(
+          margin,
+          yPos,
+          tableWidth,
+          rowHeight,
+          rowColor,
+          colors.border,
+          0.2
+        );
+
+        const budget = filteredData.budgets[expense.budgetId];
+
+        // Prepare row data with proper truncation
+        const expenseName = expense.name || "Unnamed Transaction";
+        const truncatedName =
+          expenseName.length > 38
+            ? expenseName.substring(0, 35) + "..."
+            : expenseName;
+        const budgetName = budget?.name || "Unknown";
+        const truncatedBudget =
+          budgetName.length > 18
+            ? budgetName.substring(0, 15) + "..."
+            : budgetName;
+
+        const rowData = [
+          formatDate(expense.date),
+          truncatedName,
+          formatCurrency(expense.amount),
+          truncatedBudget,
+        ];
+
+        xPos = margin;
+        rowData.forEach((data, colIndex) => {
+          doc.setTextColor(...colors.text);
+
+          if (colIndex === 2) {
+            // Amount in accent color and bold
+            doc.setTextColor(...colors.accent);
+            doc.setFont("times", "bold");
+          } else {
+            doc.setFont("times", "normal");
+          }
+
+          const centerX = xPos + colWidths[colIndex] / 2;
+          const textAlign = colIndex === 1 ? "left" : "center";
+          const textX = colIndex === 1 ? xPos + 3 : centerX;
+
+          doc.text(data, textX, yPos + 6.5, { align: textAlign });
+          xPos += colWidths[colIndex];
         });
-      yPos += 10;
+        yPos += rowHeight;
+      });
+      yPos += 15;
     }
 
-    // Recent Timeline Section
+    // Recent Timeline Section with clean design
     if (
       includeOptions.timeline &&
       Object.keys(filteredData.expenses).length > 0
     ) {
-      checkPageBreak(40);
-      doc.setFontSize(14);
-      doc.setFont(undefined, "bold");
-      doc.text("RECENT EXPENSES (Last 10)", margin, yPos);
-      yPos += 10;
+      checkPageBreak(45);
 
-      doc.setFontSize(9);
-      doc.setFont(undefined, "normal");
+      doc.setTextColor(...colors.primary);
+      doc.setFontSize(16);
+      doc.setFont("times", "bold");
+      doc.text("RECENT ACTIVITY", margin, yPos);
+      yPos += 18;
+
       const recentExpenses = Object.values(filteredData.expenses)
         .sort((a, b) => new Date(b.date) - new Date(a.date))
-        .slice(0, 10);
+        .slice(0, 8);
 
-      recentExpenses.forEach((expense, index) => {
-        checkPageBreak(8);
+      recentExpenses.forEach((expense) => {
+        checkPageBreak(14);
+
         const budget = filteredData.budgets[expense.budgetId];
-        doc.text(
-          `${index + 1}. ${formatDate(expense.date)} - ${
-            expense.name || "Unnamed"
-          } - ${formatCurrency(expense.amount)} (${budget?.name || "Unknown"})`,
+        const itemHeight = 12;
+
+        // Timeline item background
+        drawBox(
           margin,
-          yPos
+          yPos,
+          contentWidth,
+          itemHeight,
+          colors.background,
+          colors.border,
+          0.2
         );
-        yPos += lineHeight;
+
+        // Timeline indicator (dot)
+        doc.setFillColor(...colors.accent);
+        doc.circle(margin + 8, yPos + 6, 1.5, "F");
+
+        // Main content
+        doc.setTextColor(...colors.text);
+        doc.setFontSize(9);
+        doc.setFont("times", "normal");
+
+        const expenseName = expense.name || "Transaction";
+        const truncatedName =
+          expenseName.length > 40
+            ? expenseName.substring(0, 37) + "..."
+            : expenseName;
+        const mainText = `${formatDate(
+          expense.date
+        )} - ${truncatedName} - ${formatCurrency(expense.amount)}`;
+
+        doc.text(mainText, margin + 15, yPos + 5);
+
+        // Category info
+        doc.setTextColor(...colors.secondary);
+        doc.setFontSize(8);
+        const categoryText = `Category: ${budget?.name || "Unknown"}`;
+        doc.text(categoryText, margin + 15, yPos + 9);
+
+        yPos += itemHeight + 1;
       });
+      yPos += 10;
     }
 
-    // Footer
+    // Professional footer with improved spacing
     const pageCount = doc.internal.getNumberOfPages();
     for (let i = 1; i <= pageCount; i++) {
       doc.setPage(i);
+
+      const footerY = doc.internal.pageSize.height - 15;
+
+      // Footer separator line
+      doc.setDrawColor(...colors.border);
+      doc.setLineWidth(0.3);
+      doc.line(margin, footerY - 5, pageWidth - margin, footerY - 5);
+
+      // Footer content
+      doc.setTextColor(...colors.secondary);
       doc.setFontSize(8);
-      doc.text(
-        `Page ${i} of ${pageCount}`,
-        pageWidth - margin,
-        doc.internal.pageSize.height - 10,
-        { align: "right" }
-      );
+      doc.setFont("times", "normal");
+
+      // Left side - Report title
+      doc.text("Expense Tracker Report", margin, footerY);
+
+      // Center - Page numbers
+      doc.text(`Page ${i} of ${pageCount}`, pageWidth / 2, footerY, {
+        align: "center",
+      });
+
+      // Right side - Generation timestamp
+      const timestamp = new Date().toLocaleString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        timeZone: "Asia/Manila",
+      });
+      doc.text(timestamp, pageWidth - margin, footerY, { align: "right" });
     }
 
     return doc;
@@ -507,7 +779,7 @@ const ExportReport = ({ budgets, expenses, onClose, user }) => {
                         startDate: e.target.value,
                       }))
                     }
-                    className="w-full p-3 border rounded-lg text-sm text-gray-900 bg-white appearance-none min-h-[44px] focus:ring-2 focus:ring-amber-300 focus:border-amber-300"
+                    className="w-full p-3 border rounded-lg text-sm text-amber-900 bg-amber-50 appearance-none min-h-[44px] focus:ring-2 focus:ring-amber-300 focus:border-amber-300"
                     style={{
                       WebkitAppearance: "none",
                       MozAppearance: "textfield",
@@ -522,7 +794,7 @@ const ExportReport = ({ budgets, expenses, onClose, user }) => {
                         endDate: e.target.value,
                       }))
                     }
-                    className="w-full p-3 border rounded-lg text-sm text-gray-900 bg-white appearance-none min-h-[44px] focus:ring-2 focus:ring-amber-300 focus:border-amber-300"
+                    className="w-full p-3 border rounded-lg text-sm text-amber-900 bg-amber-50 appearance-none min-h-[44px] focus:ring-2 focus:ring-amber-300 focus:border-amber-300"
                     style={{
                       WebkitAppearance: "none",
                       MozAppearance: "textfield",
