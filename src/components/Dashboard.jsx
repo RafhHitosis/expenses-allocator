@@ -9,12 +9,15 @@ import {
   Download,
   Clock,
   FileText,
+  Target,
 } from "lucide-react";
 import BudgetCard from "./BudgetCard";
 import BudgetForm from "./BudgetForm";
 import ExpenseForm from "./ExpenseForm";
 import ExpenseList from "./ExpenseList";
 import ExportReport from "./ExportReport";
+import GoalCard from "./GoalCard";
+import GoalForm from "./GoalForm";
 import { database } from "../firebase";
 import { ref, onValue, push, set, remove, get } from "firebase/database";
 
@@ -32,6 +35,9 @@ const Dashboard = ({ user, onLogout }) => {
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showFABMenu, setShowFABMenu] = useState(false);
+  const [goals, setGoals] = useState({});
+  const [showGoalForm, setShowGoalForm] = useState(false);
+  const [editingGoal, setEditingGoal] = useState(null);
 
   // Refs for auto-scroll
   const budgetFormRef = useRef(null);
@@ -74,6 +80,19 @@ const Dashboard = ({ user, onLogout }) => {
     return () => {
       unsubscribeBudgets();
       unsubscribeExpenses();
+    };
+  }, [user.uid]);
+
+  useEffect(() => {
+    const goalsRef = ref(database, `goals/${user.uid}`);
+
+    const unsubscribeGoals = onValue(goalsRef, (snapshot) => {
+      const data = snapshot.val() || {};
+      setGoals(data);
+    });
+
+    return () => {
+      unsubscribeGoals();
     };
   }, [user.uid]);
 
@@ -171,6 +190,51 @@ const Dashboard = ({ user, onLogout }) => {
     0
   );
 
+  const handleAddGoal = async (goalData) => {
+    const newRef = push(ref(database, `goals/${user.uid}`));
+    await set(newRef, { ...goalData, id: newRef.key });
+    setShowGoalForm(false);
+    setShowFABMenu(false);
+  };
+
+  const handleEditGoal = async (goalData) => {
+    await set(ref(database, `goals/${user.uid}/${editingGoal.id}`), {
+      ...goalData,
+      id: editingGoal.id,
+    });
+    setEditingGoal(null);
+  };
+
+  const handleDeleteGoal = (goalId) => {
+    openConfirmModal(
+      async () => {
+        await remove(ref(database, `goals/${user.uid}/${goalId}`));
+      },
+      "Delete Goal",
+      "This action cannot be undone."
+    );
+  };
+
+  const handleGoalEditClick = (goal) => {
+    setShowGoalForm(false);
+    setShowBudgetForm(false);
+    setShowExpenseForm(false);
+    setEditingGoal(goal);
+    setShowFABMenu(false);
+    setTimeout(() => scrollToElement(budgetFormRef), 100);
+  };
+
+  const handleGoalFormToggle = () => {
+    setShowGoalForm((prev) => !prev);
+    setShowBudgetForm(false);
+    setShowExpenseForm(false);
+    setEditingGoal(null);
+    setShowFABMenu(false);
+    if (!showGoalForm) {
+      setTimeout(() => scrollToElement(budgetFormRef), 100);
+    }
+  };
+
   const handleEditClick = (budget) => {
     setShowBudgetForm(false);
     setShowExpenseForm(false);
@@ -241,7 +305,8 @@ const Dashboard = ({ user, onLogout }) => {
   const closeMobileActions = () => {
     setShowBudgetForm(false);
     setShowExpenseForm(false);
-    setEditingBudget(null);
+    setShowGoalForm(false);
+    setEditingGoal(null);
     setMobileMenuOpen(false);
     setShowFABMenu(false);
   };
@@ -494,6 +559,19 @@ const Dashboard = ({ user, onLogout }) => {
             <Minus className="w-6 h-6 mr-3" />
             {showExpenseForm ? "Close Expense Form" : "Add New Expense"}
           </button>
+          <button
+            onClick={handleGoalFormToggle}
+            className={`px-8 py-4 rounded-2xl font-semibold text-base flex items-center justify-center shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 ${
+              showGoalForm ? "scale-105 shadow-xl" : ""
+            }`}
+            style={{
+              backgroundColor: showGoalForm ? "#74512D" : "#D4C4A8",
+              color: showGoalForm ? "#F8F4E1" : "#543310",
+            }}
+          >
+            <Target className="w-6 h-6 mr-3" />
+            {showGoalForm ? "Close Goal Form" : "Add New Goal"}
+          </button>
         </div>
 
         {/* Forms Section - Enhanced with Smooth Animations */}
@@ -542,6 +620,37 @@ const Dashboard = ({ user, onLogout }) => {
                 budgets={budgets}
                 onSubmit={handleAddExpense}
                 onCancel={closeMobileActions}
+              />
+            </div>
+          )}
+          {showGoalForm && (
+            <div
+              ref={budgetFormRef}
+              className="p-6 sm:p-8 rounded-2xl shadow-xl border-2 animate-slide-down"
+              style={{
+                backgroundColor: "#F8F4E1",
+                borderColor: "#D4C4A8",
+              }}
+            >
+              <GoalForm
+                onSubmit={handleAddGoal}
+                onCancel={closeMobileActions}
+              />
+            </div>
+          )}
+          {editingGoal && (
+            <div
+              ref={budgetFormRef}
+              className="p-6 sm:p-8 rounded-2xl shadow-xl border-2 animate-slide-down"
+              style={{
+                backgroundColor: "#F8F4E1",
+                borderColor: "#74512D",
+              }}
+            >
+              <GoalForm
+                initialData={editingGoal}
+                onSubmit={handleEditGoal}
+                onCancel={() => setEditingGoal(null)}
               />
             </div>
           )}
@@ -605,6 +714,51 @@ const Dashboard = ({ user, onLogout }) => {
               onDelete={handleDeleteExpense}
             />
           </div>
+
+          {/* Goals Section */}
+          <div className="space-y-6 xl:col-span-2">
+            <h2
+              className="text-xl sm:text-2xl font-bold"
+              style={{ color: "#543310" }}
+            >
+              Your Goals
+            </h2>
+            {Object.keys(goals).length === 0 ? (
+              <div
+                className="p-8 sm:p-12 rounded-2xl shadow-lg text-center"
+                style={{
+                  backgroundColor: "#F8F4E1",
+                  border: `2px dashed #D4C4A8`,
+                }}
+              >
+                <p
+                  className="text-base sm:text-lg font-medium"
+                  style={{ color: "#74512D" }}
+                >
+                  No goals yet. Set your first savings target!
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+                {Object.entries(goals).map(([id, goal], index) => (
+                  <div
+                    key={id}
+                    className="rounded-2xl shadow-lg transform hover:scale-105 transition-all duration-300 animate-fade-in"
+                    style={{
+                      backgroundColor: "#F8F4E1",
+                      animationDelay: `${index * 100}ms`,
+                    }}
+                  >
+                    <GoalCard
+                      goal={goal}
+                      onEdit={() => handleGoalEditClick(goal)}
+                      onDelete={() => handleDeleteGoal(id)}
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -647,6 +801,31 @@ const Dashboard = ({ user, onLogout }) => {
                 }}
               >
                 <FileText className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Add Goal FAB */}
+            <div className="flex items-center space-x-3">
+              <div
+                className="px-3 py-2 rounded-full shadow-lg"
+                style={{
+                  backgroundColor: "#F8F4E1",
+                  color: "#543310",
+                }}
+              >
+                <span className="text-sm font-medium whitespace-nowrap">
+                  Add Goal
+                </span>
+              </div>
+              <button
+                onClick={handleGoalFormToggle}
+                className="w-12 h-12 rounded-full shadow-lg flex items-center justify-center transform hover:scale-110 transition-all duration-300"
+                style={{
+                  backgroundColor: "#D4C4A8",
+                  color: "#543310",
+                }}
+              >
+                <Target className="w-5 h-5" />
               </button>
             </div>
 
